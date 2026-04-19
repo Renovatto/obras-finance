@@ -1,0 +1,41 @@
+# Node.js
+node_modules/
+.npm/
+package-lock.json
+
+# SvelteKit
+.svelte-kit/
+build/
+dist/
+.output/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+backend/.venv/
+.env
+.env.*
+!.env.example
+
+# SQLite
+backend/*.db
+backend/*.db-shm
+backend/*.db-wal
+
+# PyInstaller / Build
+backend/build/
+backend/dist/
+backend/dist_pkg/
+backend/*.spec
+*.exe
+*.app
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp

@@ -1,0 +1,10 @@
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+sqlalchemy[asyncio]>=2.0.0
+aiosqlite>=0.20.0          # driver assíncrono SQLite
+alembic>=1.13.0
+pydantic>=2.7.0
+pydantic-settings>=2.3.0
+
+# Para migrar de volta ao PostgreSQL no futuro, descomente:
+# asyncpg>=0.29.0

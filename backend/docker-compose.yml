@@ -1,0 +1,42 @@
+services:
+  # ─────────────────────────────────────────────────────────────
+  #  PostgreSQL 16
+  # ─────────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: obras_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: obras_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - obras_pgdata:/var/lib/postgresql/data
+      # Script SQL de criação inicial (opcional – use Alembic preferencialmente)
+      - ./migrations/V1__create_initial_tables.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d obras_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────────────────────
+  #  FastAPI (opcional – descomente para containerizar o backend)
+  # ─────────────────────────────────────────────────────────────
+  # api:
+  #   build: .
+  #   container_name: obras_api
+  #   restart: unless-stopped
+  #   env_file: .env
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  obras_pgdata:
+    driver: local
