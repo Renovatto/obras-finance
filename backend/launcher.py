@@ -17,6 +17,16 @@ else:
     # Se rodando do código fonte
     BASE_PATH = Path(__file__).resolve().parent
 
+# Adicionar o BASE_PATH ao sys.path para garantir que o pacote 'app' seja encontrado
+sys.path.append(str(BASE_PATH))
+
+# Importação explícita para que o PyInstaller detecte a dependência
+try:
+    from app.main import app
+except ImportError:
+    # Caso o build precise rodar sem o pacote app instalado no ambiente de build local
+    app = "app.main:app"
+
 def is_port_in_use(port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex(('localhost', port)) == 0
@@ -45,5 +55,5 @@ if __name__ == "__main__":
     threading.Thread(target=open_browser, args=(url,), daemon=True).start()
     
     # Rodar o Uvicorn
-    # Importante: usar a string 'app.main:app' ou o próprio objeto app
-    uvicorn.run("app.main:app", host="127.0.0.1", port=port, log_level="info")
+    # No PyInstaller, passar o objeto 'app' diretamente é mais confiável do que a string
+    uvicorn.run(app, host="127.0.0.1", port=port, log_level="info")

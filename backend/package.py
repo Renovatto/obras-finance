@@ -60,6 +60,7 @@ def build():
     pyinstaller_cmd = (
         f"\"{venv_pyinstaller}\" --onefile "
         f"--add-data \"dist{sep}dist\" "
+        f"--collect-all app "
         f"--name \"ObrasFinance\" "
         f"--clean "
         f"launcher.py"
