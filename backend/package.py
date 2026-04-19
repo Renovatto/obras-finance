@@ -43,13 +43,22 @@ def build():
     # Nota: No Windows o separador do --add-data é ';', no Mac/Linux é ':'
     sep = ";" if os.name == 'nt' else ":"
     
-    # Usar o pyinstaller que está no venv
-    venv_pyinstaller = str(backend_dir / ".venv" / "bin" / "pyinstaller")
-    if os.name == 'nt':
-        venv_pyinstaller = str(backend_dir / ".venv" / "Scripts" / "pyinstaller.exe")
+    # Procura o executável do PyInstaller
+    # 1. Tenta no PATH (Global/GitHub Actions)
+    # 2. Tenta nos caminhos comuns de .venv
+    venv_pyinstaller = shutil.which("pyinstaller")
+    
+    if not venv_pyinstaller:
+        # Fallback para .venv se não estiver no PATH
+        if os.name == 'nt':
+            venv_pyinstaller = str(backend_dir / ".venv" / "Scripts" / "pyinstaller.exe")
+        else:
+            venv_pyinstaller = str(backend_dir / ".venv" / "bin" / "pyinstaller")
+
+    print(f"Usando PyInstaller em: {venv_pyinstaller}")
 
     pyinstaller_cmd = (
-        f"{venv_pyinstaller} --onefile "
+        f"\"{venv_pyinstaller}\" --onefile "
         f"--add-data \"dist{sep}dist\" "
         f"--name \"ObrasFinance\" "
         f"--clean "
