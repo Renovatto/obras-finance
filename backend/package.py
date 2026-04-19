@@ -61,6 +61,7 @@ def build():
         f"\"{venv_pyinstaller}\" --onefile "
         f"--add-data \"dist{sep}dist\" "
         f"--collect-all app "
+        f"--hidden-import aiosqlite "
         f"--hidden-import uvicorn.logging "
         f"--hidden-import uvicorn.loops "
         f"--hidden-import uvicorn.loops.auto "
