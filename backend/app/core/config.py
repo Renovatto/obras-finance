@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 from pathlib import Path
 from pydantic_settings import BaseSettings
@@ -6,12 +7,6 @@ from pydantic_settings import BaseSettings
 # Localização padrão das configurações de sistema
 CONFIG_DIR = Path.home() / "Documents" / "ObrasFinance"
 CONFIG_FILE = CONFIG_DIR / "config.json"
-
-# Caminho para os arquivos estáticos do Frontend
-# Em desenvolvimento: projetopai/backend/dist
-# No executável PyInstaller: _MEIPASS/dist
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-STATIC_DIR = Path(os.getenv("STATIC_FILES_PATH", BASE_DIR / "dist"))
 
 def get_db_url():
     """Lê o caminho do banco de dados do arquivo config.json ou usa o padrão."""
@@ -34,6 +29,24 @@ def get_db_url():
 
 class Settings(BaseSettings):
     # ──────────────────────────────────────────
+    #  Ambiente e Infra
+    # ──────────────────────────────────────────
+    # Detecta se está rodando de dentro de um executável PyInstaller
+    IS_PORTABLE: bool = getattr(sys, 'frozen', False)
+    
+    # Caminho raiz para arquivos estáticos
+    @property
+    def STATIC_DIR(self) -> Path:
+        if self.IS_PORTABLE:
+            # No executável único, sys._MEIPASS aponta para a pasta temporária
+            return Path(sys._MEIPASS) / "dist"
+        
+        # Em desenvolvimento, olha para a pasta dist dentro de backend (se gerada)
+        base_dir = Path(__file__).resolve().parent.parent.parent
+        custom_path = os.getenv("STATIC_FILES_PATH")
+        return Path(custom_path) if custom_path else base_dir / "dist"
+
+    # ──────────────────────────────────────────
     #  Database – SQLite via aiosqlite
     # ──────────────────────────────────────────
     DATABASE_URL: str = get_db_url()
@@ -46,12 +59,12 @@ class Settings(BaseSettings):
     DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
 
     # ──────────────────────────────────────────
-    #  CORS – ajuste conforme ambiente
+    #  CORS
     # ──────────────────────────────────────────
     ALLOWED_ORIGINS: list[str] = [
         "http://localhost:5173",  # SvelteKit dev
         "http://localhost:4173",  # SvelteKit preview
-        "*"                       # Permitir tudo para o executável local
+        "*"                       # Permitir tudo no executável para facilitar acesso local
     ]
 
     class Config:

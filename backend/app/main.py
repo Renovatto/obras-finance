@@ -62,28 +62,40 @@ app.include_router(
 )
 
 
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-import os
+@app.get("/", tags=["Root"])
+async def root():
+    """
+    Redireciona para a documentação da API em desenvolvimento.
+    No executável, esta rota será capturada pelo gerenciador de arquivos estáticos se o mesmo estiver ativo.
+    """
+    return RedirectResponse(url="/docs")
 
-# ... routers ... (already included above in the file)
 
-# Montagem dos arquivos estáticos do Frontend (SvelteKit dist)
-if settings.STATIC_DIR.exists():
+# ── Servidor de Arquivos Estáticos (Frontend) ──────────────────
+# Ativado apenas no modo portátil ou se a pasta dist existir explicitamente
+if settings.IS_PORTABLE or settings.STATIC_DIR.exists():
+    from fastapi.staticfiles import StaticFiles
+    from fastapi.responses import FileResponse
+
     app.mount("/static", StaticFiles(directory=settings.STATIC_DIR), name="static")
 
     @app.get("/{full_path:path}", tags=["Frontend"])
     async def serve_spa(full_path: str):
         """Serve o index.html para qualquer rota que não seja da API (SPA Fallback)."""
-        # Ignora rotas que começam com /api
-        if full_path.startswith("api/"):
-            raise HTTPException(status_code=404, detail="API endpoint not found")
+        # Ignora rotas que começam com /api ou documentação
+        if full_path.startswith("api/") or full_path in ["docs", "redoc", "openapi.json"]:
+            raise HTTPException(status_code=404, detail="Not Found")
             
         file_path = settings.STATIC_DIR / full_path
         if full_path != "" and file_path.exists():
             return FileResponse(file_path)
             
-        return FileResponse(settings.STATIC_DIR / "index.html")
+        # Fallback para SPA: entrega o index.html da raiz do frontend
+        index_file = settings.STATIC_DIR / "index.html"
+        if index_file.exists():
+            return FileResponse(index_file)
+        
+        raise HTTPException(status_code=404, detail="Frontend não encontrado")
 
 @app.get("/health", tags=["Health"])
 async def health_check():
