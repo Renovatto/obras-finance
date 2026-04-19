@@ -62,13 +62,14 @@ app.include_router(
 )
 
 
-@app.get("/", tags=["Root"])
-async def root():
-    """
-    Redireciona para a documentação da API em desenvolvimento.
-    No executável, esta rota será capturada pelo gerenciador de arquivos estáticos se o mesmo estiver ativo.
-    """
-    return RedirectResponse(url="/docs")
+if not settings.IS_PORTABLE:
+    @app.get("/", tags=["Root"])
+    async def root():
+        """
+        Redireciona para a documentação da API apenas em desenvolvimento.
+        No executável, esta rota não existirá, permitindo que o catch-all do Frontend capture o acesso à raiz.
+        """
+        return RedirectResponse(url="/docs")
 
 
 # ── Servidor de Arquivos Estáticos (Frontend) ──────────────────
