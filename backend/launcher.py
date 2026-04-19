@@ -10,22 +10,18 @@ from pathlib import Path
 # Configurar caminhos para o PyInstaller
 if getattr(sys, 'frozen', False):
     # Se rodando do executável
-    BASE_PATH = Path(sys._MEIPASS)
+    BASE_PATH = sys._MEIPASS
     # No executável, forçamos o STATIC_FILES_PATH para onde o PyInstaller o colocou
-    os.environ["STATIC_FILES_PATH"] = str(BASE_PATH / "dist")
+    os.environ["STATIC_FILES_PATH"] = str(Path(BASE_PATH) / "dist")
 else:
     # Se rodando do código fonte
-    BASE_PATH = Path(__file__).resolve().parent
+    BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Adicionar o BASE_PATH ao sys.path para garantir que o pacote 'app' seja encontrado
-sys.path.append(str(BASE_PATH))
+sys.path.insert(0, str(BASE_PATH))
 
-# Importação explícita para que o PyInstaller detecte a dependência
-try:
-    from app.main import app
-except ImportError:
-    # Caso o build precise rodar sem o pacote app instalado no ambiente de build local
-    app = "app.main:app"
+# Importação explícita e obrigatória (Sem try/except) para que o PyInstaller registre a dependência
+from app.main import app 
 
 def is_port_in_use(port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -54,6 +50,8 @@ if __name__ == "__main__":
     # Iniciar thread para abrir o navegador
     threading.Thread(target=open_browser, args=(url,), daemon=True).start()
     
-    # Rodar o Uvicorn
-    # No PyInstaller, passar o objeto 'app' diretamente é mais confiável do que a string
-    uvicorn.run(app, host="127.0.0.1", port=port, log_level="info")
+    # Rodar o Uvicorn de forma explícita para compatibilidade máxima estruturada com PyInstaller
+    config = uvicorn.Config(app=app, host="127.0.0.1", port=port, log_level="info")
+    server = uvicorn.Server(config)
+    server.run()
+
