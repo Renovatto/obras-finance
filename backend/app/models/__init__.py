@@ -17,8 +17,10 @@ from decimal import Decimal
 from typing import Any, Optional
 
 from sqlalchemy import (
+    Boolean,
     Date,
     ForeignKey,
+    Integer,
     String,
     Text,
     types,
@@ -223,3 +225,28 @@ class LancamentoFinanceiro(Base):
     )
     responsavel: Mapped["Responsavel"] = relationship(back_populates="lancamentos")
     obra: Mapped[Optional["Obra"]] = relationship(back_populates="lancamentos")
+
+
+# ══════════════════════════════════════════════════════════════
+#  Configuração do Sistema  (singleton – id sempre = 1)
+# ══════════════════════════════════════════════════════════════
+
+class ConfiguracaoSistema(Base):
+    """
+    Tabela singleton que centraliza todos os ajustes de sistema.
+    
+    Campos:
+      • database_path   – caminho do arquivo SQLite
+      • port            – porta do servidor interno
+      • welcome_message – True quando o tour de boas-vindas já foi exibido
+    """
+
+    __tablename__ = "configuracao_sistema"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, default=1)
+    database_path: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
+    port: Mapped[int] = mapped_column(Integer, nullable=False, default=8000)
+    # False = tour ainda não foi visto; True = tour já foi concluído/pulado
+    welcome_message: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False
+    )

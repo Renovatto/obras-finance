@@ -1,12 +1,28 @@
 <script lang="ts">
 	import '../app.postcss';
+	import { onMount } from 'svelte';
 	import { Home, Wallet, PieChart, HardHat, Settings } from 'lucide-svelte';
 	import Topbar from '$lib/components/Topbar.svelte';
 	import LaunchModal from '$lib/components/LaunchModal.svelte';
 	import RightMenuDrawer from '$lib/components/RightMenuDrawer.svelte';
+	import WelcomeTour from '$lib/components/WelcomeTour.svelte';
 	import { ui } from '$lib/stores/ui.svelte';
+	import { api } from '$lib/api';
 
 	let { children } = $props();
+
+	// Controla exibição do tour de boas vindas
+	let showTour = $state(false);
+
+	onMount(async () => {
+		try {
+			const status = await api.get<{ welcome_message: boolean }>('/onboarding/status');
+			// Exibe o tour apenas se welcome_message ainda é false (nunca viu)
+			showTour = !status.welcome_message;
+		} catch (e) {
+			console.warn('Não foi possível verificar status do onboarding:', e);
+		}
+	});
 
 	// Estrutura de rotas principal
 	const navItems = [
@@ -26,11 +42,12 @@
 	<div class="flex flex-1 pt-16 h-full w-full overflow-hidden">
 		
 		<!-- [DESKTOP] Sidebar (Z-30) -->
-		<aside class="hidden md:flex w-72 flex-col bg-white border-r border-gray-100 shadow-[2px_0_12px_rgba(0,0,0,0.02)] h-full z-30">
+		<aside id="tour-sidebar" class="hidden md:flex w-72 flex-col bg-white border-r border-gray-100 shadow-[2px_0_12px_rgba(0,0,0,0.02)] h-full z-30">
 			<nav class="flex-1 px-4 py-8 space-y-1.5 overflow-y-auto w-full">
 				{#each navItems as item}
 					<a
 						href={item.href}
+						id={item.href === '/obras' ? 'tour-obras' : item.href === '/relatorios' ? 'tour-relatorios' : undefined}
 						class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-gray-500 hover:bg-blue-50/50 hover:text-blue-600 transition-all active:scale-[0.98] cursor-pointer font-semibold group"
 					>
 						<div class="p-2 transition-colors group-hover:bg-white group-hover:shadow-sm rounded-lg">
@@ -86,6 +103,11 @@
 
 	<!-- Modal Global de Lançamento (Z-100) -->
 	<LaunchModal />
+
+	<!-- Tour de Boas-Vindas (primeira abertura) -->
+	{#if showTour}
+		<WelcomeTour onConcluir={() => showTour = false} />
+	{/if}
 </div>
 
 <style>

@@ -198,7 +198,7 @@
 	</header>
 
 	<!-- Painel de Filtros Avançados -->
-	<section class="relative z-20 grid grid-cols-1 sm:grid-cols-3 gap-4 bg-white/50 backdrop-blur-sm p-4 rounded-[2rem] border border-gray-100 shadow-sm" in:slide>
+	<section id="tour-filtros" class="relative z-20 grid grid-cols-1 sm:grid-cols-3 gap-4 bg-white/50 backdrop-blur-sm p-4 rounded-[2rem] border border-gray-100 shadow-sm" in:slide>
 		<!-- Filtro Período -->
 		<PeriodSelect 
 			bind:value={filters.periodo} 
@@ -243,7 +243,7 @@
 		<!-- KPI Grid -->
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full" in:slide={{ duration: 400 }}>
 			<!-- Card Saldo -->
-			<div class="bg-white p-6 rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col justify-between hover:scale-[1.02] transition-all group">
+			<div id="tour-saldo" class="bg-white p-6 rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col justify-between hover:scale-[1.02] transition-all group">
 				<div class="flex justify-between items-start">
 					<div class="p-3 bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-200 group-hover:rotate-6 transition-transform">
 						<Wallet size={24} />
@@ -260,7 +260,7 @@
 			</div>
 
 			<!-- Card Receitas -->
-			<div class="bg-emerald-600 p-6 rounded-[2rem] shadow-xl shadow-emerald-200/50 text-white flex flex-col justify-between hover:scale-[1.02] transition-all group overflow-hidden relative">
+			<div id="tour-receitas" class="bg-emerald-600 p-6 rounded-[2rem] shadow-xl shadow-emerald-200/50 text-white flex flex-col justify-between hover:scale-[1.02] transition-all group overflow-hidden relative">
 				<div class="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform">
 					<TrendingUp size={120} />
 				</div>

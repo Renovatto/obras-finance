@@ -3,7 +3,7 @@
   import { api } from '$lib/api';
   import { 
     Settings, Tags, CreditCard, Users, 
-    Plus, Trash2, Edit2, Check, X, Loader2, Database
+    Plus, Trash2, Edit2, Check, X, Loader2, Database, RotateCcw
   } from 'lucide-svelte';
   import { fade, slide } from 'svelte/transition';
 
@@ -29,7 +29,8 @@
   // Estado de Configuração de Sistema
   let systemConfig = $state({
     database_path: '',
-    port: 8000
+    port: 8000,
+    welcome_message: false
   });
 
   async function loadSystemConfig() {
@@ -386,6 +387,39 @@
               class="w-32 px-5 py-3.5 bg-white border border-gray-200 rounded-2xl font-bold text-gray-900 focus:border-blue-600 outline-none transition-all shadow-sm"
             />
           </div>
+        </div>
+
+        <!-- Toggle: Tour de Boas-Vindas -->
+        <div class="mt-2 p-5 bg-white border border-gray-100 rounded-2xl flex items-center justify-between gap-6 shadow-sm">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-blue-50 text-blue-600 rounded-xl">
+              <RotateCcw size={18} />
+            </div>
+            <div>
+              <p class="text-sm font-black text-gray-800">Tour de Boas-Vindas</p>
+              <p class="text-[11px] text-gray-400 font-medium mt-0.5">
+                {systemConfig.welcome_message 
+                  ? 'Tour concluído. Ative para exibir novamente na próxima abertura.' 
+                  : 'O tour será exibido automaticamente na próxima abertura do sistema.'}
+              </p>
+            </div>
+          </div>
+          <!-- Toggle Switch -->
+          <button
+            id="toggle-welcome"
+            role="switch"
+            aria-checked={!systemConfig.welcome_message}
+            onclick={() => systemConfig.welcome_message = !systemConfig.welcome_message}
+            class="relative inline-flex h-7 w-13 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+            class:bg-blue-600={!systemConfig.welcome_message}
+            class:bg-gray-200={systemConfig.welcome_message}
+          >
+            <span
+              class="pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+              class:translate-x-6={!systemConfig.welcome_message}
+              class:translate-x-0={systemConfig.welcome_message}
+            />
+          </button>
         </div>
 
         <div class="flex justify-end pt-4">

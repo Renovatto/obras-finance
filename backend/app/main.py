@@ -12,7 +12,7 @@ from app.core.database import engine, Base
 
 # Importar routers (criados progressivamente)
 from app.routers import (
-    obras, lancamentos, auxiliares, dashboard, relatorios, config
+    obras, lancamentos, auxiliares, dashboard, relatorios, config, onboarding
 )
 
 
@@ -59,6 +59,9 @@ app.include_router(
 )
 app.include_router(
     config.router, prefix="/api/v1/config", tags=["Configurações"]
+)
+app.include_router(
+    onboarding.router, prefix="/api/v1/onboarding", tags=["Onboarding"]
 )
 
 
