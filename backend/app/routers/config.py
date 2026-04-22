@@ -13,11 +13,17 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Optional
+import json
+from pathlib import Path
 
 from app.core.database import get_db
 from app.models import ConfiguracaoSistema
 
 router = APIRouter()
+
+# Localização do arquivo de bootstrap (mesma do core/config.py)
+CONFIG_DIR = Path.home() / "Documents" / "ObrasFinance"
+CONFIG_FILE = CONFIG_DIR / "config.json"
 
 
 class SystemConfigPayload(BaseModel):
@@ -67,6 +73,19 @@ async def update_config(payload: SystemConfigPayload, db: AsyncSession = Depends
     config.port = payload.port
     config.welcome_message = payload.welcome_message
     await db.commit()
+
+    # Sincroniza com o arquivo JSON de bootstrap
+    try:
+        CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+        bootstrap_data = {
+            "database_path": payload.database_path,
+            "port": payload.port
+        }
+        with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+            json.dump(bootstrap_data, f, indent=4, ensure_ascii=False)
+    except Exception as e:
+        print(f"Erro ao salvar bootstrap config: {e}")
+
     return {
         "message": "Configuração salva com sucesso. Reinicie o aplicativo para aplicar mudanças de banco de dados ou porta."
     }
